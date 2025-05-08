@@ -239,4 +239,41 @@ module frontend_docker 'deploy_frontend_docker.bicep'= {
   scope: resourceGroup(resourceGroup().name)
 }
 
+output SOLUTION_NAME string = solutionPrefix
+output RESOURCE_GROUP_NAME string = resourceGroup().name
+output RESOURCE_GROUP_LOCATION string = solutionLocation
+output ENVIRONMENT_NAME string = environmentName
+output AZURE_CONTENT_UNDERSTANDING_LOCATION string = contentUnderstandingLocation
+output AZURE_SECONDARY_LOCATION string = secondaryLocation
+output APPINSIGHTS_INSTRUMENTATIONKEY string = backend_docker.outputs.appInsightInstrumentationKey
+output AZURE_AI_PROJECT_CONN_STRING string = aifoundry.outputs.azureProjectConnString
+output AZURE_AI_PROJECT_NAME string = aifoundry.outputs.azureProjectName
+output AZURE_AI_SEARCH_API_KEY string = ''
+output AZURE_AI_SEARCH_ENDPOINT string = aifoundry.outputs.aiSearchTarget
+output AZURE_AI_SEARCH_INDEX string = 'call_transcripts_index'
+output AZURE_COSMOSDB_ACCOUNT string = cosmosDBModule.outputs.cosmosAccountName
+output AZURE_COSMOSDB_CONVERSATIONS_CONTAINER string = 'conversations'
+output AZURE_COSMOSDB_DATABASE string = 'db_conversation_history'
+output AZURE_COSMOSDB_ENABLE_FEEDBACK string = 'True'
+output AZURE_OPEN_AI_DEPLOYMENT_MODEL string = gptModelName
+output AZURE_OPEN_AI_DEPLOYMENT_MODEL_CAPACITY int = gptDeploymentCapacity
+output AZURE_OPEN_AI_ENDPOINT string = aifoundry.outputs.aiServicesTarget
+output AZURE_OPENAI_API_KEY string = ''
+output AZURE_OPEN_AI_MODEL_DEPLOYMENT_TYPE string = deploymentType
+output AZURE_OPENAI_EMBEDDING_MODEL string = embeddingModel
+output AZURE_OPENAI_EMBEDDING_MODEL_CAPACITY int = embeddingDeploymentCapacity
+output AZURE_OPENAI_API_VERSION string = azureOpenAIApiVersion
+output AZURE_OPENAI_RESOURCE string = aifoundry.outputs.aiServicesName
+output OPENAI_API_VERSION string = azureOpenAIApiVersion
+output REACT_APP_LAYOUT_CONFIG string = backend_docker.outputs.reactAppLayoutConfig
+output SQLDB_DATABASE string = sqlDBModule.outputs.sqlDbName
+output SQLDB_SERVER string = sqlDBModule.outputs.sqlServerName
+output SQLDB_USER_MID string = managedIdentityModule.outputs.managedIdentityBackendAppOutput.clientId
+output SQLDB_USERNAME string = sqlDBModule.outputs.sqlDbUser
+output USE_AI_PROJECT_CLIENT string = 'False'
+output USE_CHAT_HISTORY_ENABLED string = 'True'
+output DISPLAY_CHART_DEFAULT string = 'False'
+
+output API_APP_URL string = backend_docker.outputs.appUrl
 output WEB_APP_URL string = frontend_docker.outputs.appUrl
+

@@ -8,12 +8,6 @@ Before deploying the accelerator, **ensure sufficient quota availability** for t
 azd auth login
 ```
 
-
-### Login if you have not done so already
-```
-azd auth login
-```
-
 ### 📌 Default Models & Capacities:
 ```
 gpt-4o:30, gpt-4o-mini:30, gpt-4:30, text-embedding-ada-002:80
@@ -60,7 +54,7 @@ eastus, uksouth, eastus2, northcentralus, swedencentral, westus, westus2, southc
 ### **Sample Output**
 The final table lists regions with available quota. You can select any of these regions for deployment.
 
-![quota-check-ouput](Images/quota-check-output.png)
+![quota-check-output](Images/quota-check-output.png)
 
 ---
 ### **If using Azure Portal and Cloud Shell**

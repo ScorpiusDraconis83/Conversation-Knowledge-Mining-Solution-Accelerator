@@ -182,9 +182,6 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' = 
   kind: 'AIServices'
   properties: {
     customSubDomainName: aiServicesName
-    apiProperties: {
-      statisticsEnabled: false
-    }
   }
 }
 
@@ -211,9 +208,6 @@ resource aiServices_CU 'Microsoft.CognitiveServices/accounts@2024-04-01-preview'
   kind: 'AIServices'
   properties: {
     customSubDomainName: aiServicesName_cu
-    apiProperties: {
-      statisticsEnabled: false
-    }
   }
 }
 
@@ -703,3 +697,6 @@ output logAnalyticsWorkspaceResourceName string = logAnalytics.name
 output storageAccountName string = storageNameCleaned
 
 output azureOpenAIKeyName string = azureOpenAIApiKeyEntry.name
+
+output azureProjectConnString string = '${split(aiHubProject.properties.discoveryUrl, '/')[2]};${subscription().subscriptionId};${resourceGroup().name};${aiHubProject.name}'
+output azureProjectName string = aiHubProject.name

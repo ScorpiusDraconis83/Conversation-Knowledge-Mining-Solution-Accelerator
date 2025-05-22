@@ -16,7 +16,7 @@
             ]
         }
     },
-    "postStartCommand": "git pull origin main && python3 -m pip install -r infra/scripts/index_scripts/requirements.txt && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash && chmod +x ./infra/scripts/quota_check_params.sh",
+    "postStartCommand": "bash ./.devcontainer/setup_env.sh",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "4gb"

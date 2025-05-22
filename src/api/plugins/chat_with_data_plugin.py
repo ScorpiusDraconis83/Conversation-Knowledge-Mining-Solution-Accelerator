@@ -24,7 +24,7 @@ class ChatWithDataPlugin:
 
     @kernel_function(name="Greeting",
                      description="Respond to any greeting or general questions")
-    def greeting(self, input: Annotated[str, "the question"]) -> Annotated[str, "The output is a string"]:
+    async def greeting(self, input: Annotated[str, "the question"]) -> Annotated[str, "The output is a string"]:
         query = input
 
         try:
@@ -61,26 +61,25 @@ class ChatWithDataPlugin:
                     temperature=0,
                 )
             answer = completion.choices[0].message.content
-        except Exception as e:
-            # 'Information from database could not be retrieved. Please try again later.'
-            answer = str(e)
+        except Exception:
+            answer = 'Details could not be retrieved. Please try again later.'
         return answer
 
     @kernel_function(name="ChatWithSQLDatabase",
                      description="Provides quantified results from the database.")
-    def get_SQL_Response(
+    async def get_SQL_Response(
             self,
             input: Annotated[str, "the question"]
     ):
         query = input
 
-        sql_prompt = f'''A valid T-SQL query to find {query} for tables and columns provided below:
+        sql_prompt = f'''Generate a valid T-SQL query to find {query} for tables and columns provided below:
                 1. Table: km_processed_data
                 Columns: ConversationId,EndTime,StartTime,Content,summary,satisfied,sentiment,topic,keyphrases,complaint
                 2. Table: processed_data_key_phrases
                 Columns: ConversationId,key_phrase,sentiment
                 Use ConversationId as the primary key as the primary key in tables for queries but not for any other operations.
-                Only return the generated sql query. do not return anything else.'''
+                **Always** return a valid T-SQL query with correct syntax. Only return the generated SQL query. Do not return anything else.'''
 
         try:
             if self.use_ai_project_client:
@@ -93,7 +92,7 @@ class ChatWithDataPlugin:
                 completion = client.complete(
                     model=self.azure_openai_deployment_model,
                     messages=[
-                        {"role": "system", "content": "You are a helpful assistant."},
+                        {"role": "system", "content": "You are an assistant that helps generate valid T-SQL queries."},
                         {"role": "user", "content": sql_prompt},
                     ],
                     temperature=0,
@@ -118,17 +117,16 @@ class ChatWithDataPlugin:
                 sql_query = completion.choices[0].message.content
                 sql_query = sql_query.replace("```sql", '').replace("```", '')
 
-            answer = execute_sql_query(sql_query)
+            answer = await execute_sql_query(sql_query)
             answer = answer[:20000] if len(answer) > 20000 else answer
 
-        except Exception as e:
-            # 'Information from database could not be retrieved. Please try again later.'
-            answer = str(e)
+        except Exception:
+            answer = 'Details could not be retrieved. Please try again later.'
         return answer
 
     @kernel_function(name="ChatWithCallTranscripts",
                      description="Provides summaries or detailed explanations from the search index.")
-    def get_answers_from_calltranscripts(
+    async def get_answers_from_calltranscripts(
             self,
             question: Annotated[str, "the question"]
     ):

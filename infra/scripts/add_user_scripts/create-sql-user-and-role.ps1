@@ -73,5 +73,12 @@ EXEC sp_addrolemember '$($DatabaseRole)', @username;
 Write-Output "`nSQL:`n$($sql)`n`n"
 
 Connect-AzAccount -Identity -AccountId $ManagedIdentityClientId
-$token = (Get-AzAccessToken -ResourceUrl https://database.windows.net/).Token
-Invoke-SqlCmd -ServerInstance "$SqlServerName" -Database $SqlDatabaseName -AccessToken $token -Query $sql -ErrorAction 'Stop'
+$token = (Get-AzAccessToken -AsSecureString -ResourceUrl https://database.windows.net/).Token
+$ssPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($token)
+try {
+    $plaintext = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($ssPtr)
+    Invoke-Sqlcmd -ServerInstance $SqlServerName -Database $SqlDatabaseName -AccessToken $plaintext -Query $sql -ErrorAction 'Stop'
+} finally {
+    # The following line ensures that sensitive data is not left in memory.
+    $plainText = [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ssPtr)
+}

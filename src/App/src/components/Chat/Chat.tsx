@@ -354,7 +354,7 @@ const Chat: React.FC<ChatProps> = ({
       }
       saveToDB(updatedMessages, conversationId, 'graph');
     } catch (e) {
-      console.log("Catched with an error while chat and save", e);
+      console.log("Caught with an error while chat and save", e);
       if (abortController.signal.aborted) {
         if (streamMessage.content) {
           updatedMessages = [
@@ -491,7 +491,7 @@ const Chat: React.FC<ChatProps> = ({
                   if (parsed?.error && !hasError) {
                     hasError = true;
                     runningText = parsed?.error;
-                  } else if (isChartQuery(userMessage)) {
+                  } else if (isChartQuery(userMessage) && !hasError) {
                     runningText = runningText + textValue;
                   } else if (typeof parsed === "object" && !hasError) {
                     const responseContent  = parsed?.choices?.[0]?.messages?.[0]?.content;
@@ -642,11 +642,11 @@ const Chat: React.FC<ChatProps> = ({
           ];
         }
       }
-      if (!updatedMessages.find((msg: any) => msg.role=== "error")) {
+      if (updatedMessages[updatedMessages.length-1]?.role !== "error") {
         saveToDB(updatedMessages, conversationId, isChatReq);
       }
     } catch (e) {
-      console.log("Catched with an error while chat and save", e);
+      console.log("Caught with an error while chat and save", e);
       if (abortController.signal.aborted) {
         if (streamMessage.content) {
           updatedMessages = [
@@ -718,6 +718,7 @@ const Chat: React.FC<ChatProps> = ({
 
   const onNewConversation = () => {
     dispatch({ type: actionConstants.NEW_CONVERSATION_START });
+    dispatch({  type: actionConstants.UPDATE_CITATION,payload: { activeCitation: null, showCitation: false }})
   };
   const { messages, citations } = state.chat;
   return (

@@ -4,6 +4,9 @@ targetScope = 'resourceGroup'
 @description('Solution Name')
 param solutionName string
 
+@description('Solution Location')
+param solutionLocation string
+
 @secure()
 param appSettings object = {}
 param appServicePlanId string
@@ -12,7 +15,7 @@ param userassignedIdentityId string = ''
 
 resource appService 'Microsoft.Web/sites@2020-06-01' = {
   name: solutionName
-  location: resourceGroup().location
+  location: solutionLocation
   identity: userassignedIdentityId == '' ? {
     type: 'SystemAssigned'
   } : {

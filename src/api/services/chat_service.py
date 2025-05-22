@@ -89,6 +89,8 @@ class ChatService:
         """
         Get a streaming text response from OpenAI.
         """
+        thread = None
+        complete_response = ""
         try:
             if not query:
                 query = "Please provide a query."
@@ -123,7 +125,6 @@ class ChatService:
                         plugins=[ChatWithDataPlugin()],
                     )
 
-                    thread: AzureAIAgentThread = None
                     thread_id = thread_cache.get(conversation_id, None)
                     if thread_id:
                         thread = AzureAIAgentThread(client=agent.client, thread_id=thread_id)
@@ -131,19 +132,35 @@ class ChatService:
                     truncation_strategy = TruncationObject(type="last_messages", last_messages=2)
 
                     async for response in agent.invoke_stream(messages=query, thread=thread, truncation_strategy=truncation_strategy):
+                        thread_cache[conversation_id] = response.thread.id
+                        complete_response += str(response.content)
                         yield response.content
 
         except RuntimeError as e:
+            complete_response = str(e)
             if "Rate limit is exceeded" in str(e):
-                logger.error(f"Rate limit error: {e}")
+                logger.error("Rate limit error: %s", e)
                 raise AgentException(f"Rate limit is exceeded. {str(e)}")
             else:
-                logger.error(f"RuntimeError: {e}")
+                logger.error("RuntimeError: %s", e)
                 raise AgentException(f"An unexpected runtime error occurred: {str(e)}")
 
         except Exception as e:
-            logger.error(f"Error in stream_openai_text: {e}", exc_info=True)
+            complete_response = str(e)
+            logger.error("Error in stream_openai_text: %s", e)
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Error streaming OpenAI text")
+
+        finally:
+            # Provide a fallback response when no data is received from OpenAI.
+            if complete_response == "":
+                logger.info("No response received from OpenAI.")
+                thread_cache.pop(conversation_id, None)
+                if thread:
+                    try:
+                        await thread.delete()
+                    except Exception as e:
+                        logger.warning("Failed to delete thread %s: %s", thread_id, e)
+                yield "I cannot answer this question with the current data. Please rephrase or add more details."
 
     async def stream_chat_request(self, request_body, conversation_id, query):
         """
